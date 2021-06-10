@@ -102,8 +102,8 @@ def load_grayscaled_images_from_folder(folder):
 images = load_grayscaled_images_from_folder("/Users/jinchoi725/Desktop/PCA face recognition/archive/")
 
 nparray_images = np.array(images)
-print(nparray_images[0])
-print(nparray_images[0].shape)
+print("nparray_images[0]: ", nparray_images[0])
+print("nparray_images[0].shape: ",nparray_images[0].shape)
 
 
 # print(np.reshape(nparray_images[0], (5600,1)))
@@ -183,7 +183,8 @@ eigen_faces = np.matmul(eigen_vectors, minus_mean_t)
 print(eigen_faces.shape)
 
 eigen_faces_t = eigen_faces.T
-print(eigen_faces_t)
+print("eigen_faces_t: ", eigen_faces_t)
+print("eigen_faces_t.shape: ", eigen_faces_t.shape)
 
 a = 0
 for i in range(410):
@@ -193,8 +194,39 @@ for i in range(410):
     test_im_list.save("/Users/jinchoi725/Desktop/eigenfaces/eigenface_{a}.jpg".format(a = a))
     a += 1
 
-weights = np.transpose(minus_mean).dot(np.transpose(eigen_faces))
+def load_grayscaled_images_from_folder(folder):
+    images = []
+    for filename in os.listdir(folder):
+        img = cv2.imread(os.path.join(folder,filename))
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        resize = cv2.resize(gray, (70,70))
+        images.append(resize)
+    return images
+
+
+input = load_grayscaled_images_from_folder("/Users/jinchoi725/Desktop/input/")
+
+input = np.array(input)
+# print(input)
+print(input.shape)
+
+input = input.reshape(1*70,70)
+
+print(input.shape)
+
+input = input.reshape(4900, 1)
+
+input_norm = input - mean_face_array
+
+# input_norm = input_norm.reshape(70,70)
+# test_im_list = im.fromarray(input_norm.astype(np.uint8), "L")
+# test_im_list.save("/Users/jinchoi725/Desktop/example.jpg")
+
+weights = np.matmul(eigen_faces, input_norm)
 print(weights)
+print(weights.shape)
+
+# weights = eigen_faces_t
 
 # test_im_list = im.fromarray(example.astype(np.uint8), "L")
 # test_im_list.save("/Users/jinchoi725/Desktop/example.jpg")
@@ -252,14 +284,6 @@ print(weights)
 #
 #
 #
-
-
-
-
-
-
-
-
 
 
 

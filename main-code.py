@@ -157,23 +157,47 @@ print(covariance_matrix_1.shape)
 print("22222 \n", covariance_matrix_2)
 print(covariance_matrix_2.shape)
 
-eigen_values, eigen_vectors = np.linalg.eig(covariance_matrix_1)
-print("eigen_vector: ", eigen_vectors.shape)
+eigen_values, eigen_vectors = np.linalg.eig(covariance_matrix_2)
 
-#STEP6: Convert lower dimensionality K Eigen Vectors to Original Dimensionality
+# print(type(eigen_values))
+# print(eigen_values.shape)
+# eigen_values_in_order = (-np.sort(-eigen_values))
+# print(eigen_vectors)
+# eigen_vectors_in_order = (-np.sort(-eigen_vectors))
+# print("sort:", eigen_vectors_in_order)
+
+# index = np.argsort(eigen_values.real)[::-1]
+# eigen_values_in_order = eigen_values.real[index]
+# eigen_vectors_in_order = eigen_vectors.real[:, index]
+
+print("eigen_vectors: ", eigen_vectors)
+print("eigen_vectors.shape: ", eigen_vectors.shape)
+# print("eigen_vectors_in_order: ", eigen_vectors_in_order)
+print("eigen_values: ", eigen_values)
+# print("eigen_values_in_order: ",eigen_values_in_order)
+
+
+
+# STEP6: Convert lower dimensionality K Eigen Vectors to Original Dimensionality
 eigen_faces = np.matmul(eigen_vectors, minus_mean_t)
 print(eigen_faces.shape)
 
 eigen_faces_t = eigen_faces.T
 print(eigen_faces_t)
 
+a = 0
+for i in range(410):
+    example = eigen_faces_t[:,a]
+    example = example.reshape(70,70)
+    test_im_list = im.fromarray(example.astype(np.uint8), "L")
+    test_im_list.save("/Users/jinchoi725/Desktop/eigenfaces/eigenface_{a}.jpg".format(a = a))
+    a += 1
 
-example = eigen_faces_t[:,0]
-example = example.reshape(70,70)
-print(example.shape)
+weights = np.transpose(minus_mean).dot(np.transpose(eigen_faces))
+print(weights)
 
-test_im_list = im.fromarray(example.astype(np.uint8), "L")
-test_im_list.save("/Users/jinchoi725/Desktop/example.jpg")
+# test_im_list = im.fromarray(example.astype(np.uint8), "L")
+# test_im_list.save("/Users/jinchoi725/Desktop/example.jpg")
 
 # test_im_list = im.fromarray(minus_mean.astype(np.uint8), "L")
 # test_im_list.save("/Users/jinchoi725/Desktop/minus_mean.jpg")
@@ -228,6 +252,14 @@ test_im_list.save("/Users/jinchoi725/Desktop/example.jpg")
 #
 #
 #
+
+
+
+
+
+
+
+
 
 
 

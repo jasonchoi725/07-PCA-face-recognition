@@ -24,68 +24,14 @@
 16. 그 다음 그거를 사용해서 변환행렬?을 구해야함. 알아봐야함.
 
 
-# # # import necessary libraries
-# # from pathlib import Path
-# # from PIL import Image
-# # import os, shutil
-# # from os import listdir
-# #
-# # # image resizing
-# # from PIL import Image
 import numpy as np
 from PIL import Image as im
-# #
-# # # load and display an image with Matplotlib
-# # from matplotlib import image
-# # from matplotlib import pyplot
-# #
-# #
-# # input_dir = '/Users/jinchoi725/Desktop/PCA face recognition/archive/'
-# # a = os.listdir(input_dir)
-# #
-# # # # Mac OS created a hidden file called .DS_Store which interfered with my data processing. I had to delete this hidden file, AGAIN.
-# # # for root, dirs, files in os.walk('/Users/jinchoi725/Desktop/PCA face recognition/archive'):
-# # #     i = 0
-# # #     for file in files:
-# # #         if file.endswith('.DS_Store'):
-# # #             path = os.path.join(root, file)
-# # #
-# # #             print("Deleting: %s" % (path))
-# # #
-# # #             if os.remove(path):
-# # #                 print("Unable to delete!")
-# # #             else:
-# # #                 print("Deleted...")
-# # #                 i += 1
-# # # print("Files Deleted: %d" % (i))
-# #
-# #
-# # X_image_train = []
-# # for fname in a:
-# #     try:
-# #         im = Image.open(fname)
-# #         X_image_train.append(im) # The resized image files are appended to a list object X_image_train.
-# #     except:
-# #         pass
-# #
-# # print(X_image_train)
-# #
-# # # Using the numpy library, I converted each image file to a 2 dimentional numpy array.
-# # X_image_array=[]
-# # for x in range(len(X_image_train)):
-# #     X_image=np.array(X_image_train[x],dtype='uint8')
-# #     X_image_array.append(X_image) # The numpy arrays are appended to a list object X_image_array.
-# #
-# # # Checking the size of a single numpy array
-# # print(X_image_array)
-#
-#
-# image_dir = "/Users/jinchoi725/Desktop/PCA face recognition/archive/"
-# for i in image_dir:
-#     f = open("/Users/jinchoi725/Desktop/PCA face recognition/archive/" + i, "rb")
 
 import cv2
 import os
+
+import numpy as np
+np.set_printoptions(threshold=np.inf)
 
 
 def load_grayscaled_images_from_folder(folder):
@@ -93,103 +39,50 @@ def load_grayscaled_images_from_folder(folder):
     for filename in os.listdir(folder):
         img = cv2.imread(os.path.join(folder,filename))
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        resize = cv2.resize(gray, (70,70))
+        resize = cv2.resize(gray, (70,80))
         if resize is not None:
             images.append(resize)
     return images
 
 
-images = load_grayscaled_images_from_folder("/Users/jinchoi725/Desktop/PCA face recognition/archive/")
-
-nparray_images = np.array(images)
-print("nparray_images[0]: ", nparray_images[0])
-print("nparray_images[0].shape: ",nparray_images[0].shape)
-
-
-# print(np.reshape(nparray_images[0], (5600,1)))
-
-
-def reshape(nparray_images):
+def reshape_and_concatenate(np_images_to_reshape_and_concatenate):
     a = 0
-    b = np.zeros(shape=(4900,1))
-    for i in nparray_images:
-        reshaped = np.reshape(nparray_images[a], (4900,1))
+    b = np.zeros(shape=(5600,1))
+    for i in np_images_to_reshape_and_concatenate:
+        reshaped = np.reshape(np_images_to_reshape_and_concatenate[a], (5600,1))
         b = np.concatenate((b, reshaped), axis=1)
         a += 1
     b = np.delete(b,np.s_[0:1], axis=1)
     return b
 
-original_faces_arrays = reshape(nparray_images)
 
-# b = sum(a[0])/410
-# # print("b:", b)
-# print("각 이미지를 늘여놓은거의 모음 리스트의 요소 수 ---->", len(a))
-# b = np.array(a) # 이게 길쭉하게 5600x1로 늘어놓은 410개의 이미지 벡터를 붙여놓은 거임.
-# print(b)
-# print("늘여놓은 것을 넘파이 배열로 변환한 것(b)의 shape ---->", b.shape)
-# print("넘파이 배열 b의 첫번째 요소 (첫번쨰 사진) ---->", b[0,0,0])
+images = load_grayscaled_images_from_folder("/Users/jinchoi725/Desktop/PCA face recognition/archive/")
 
-print("original_faces_arrays: ", original_faces_arrays)
-print("original faces arrays.shape: ", original_faces_arrays.shape)
+original_faces_rectangle = np.array(images)
 
-mean_face_array = original_faces_arrays.sum(axis=1)/410
-print("mean_face_array: ", mean_face_array)
-print("mean_face_array.shape: ", mean_face_array.shape)
-mean_face_array = mean_face_array.reshape((4900,1))
-print("mean face array.shape: ", mean_face_array.shape)
-print("mean face array: ", mean_face_array)
+original_faces_long = reshape_and_concatenate(original_faces_rectangle)
 
-minus_mean = original_faces_arrays - mean_face_array
-print("minus mean array: ", minus_mean)
-print("original minus mean array.shape: ", minus_mean.shape)
+mean_face_long = original_faces_long.sum(axis=1)/410
 
-minus_mean_t = np.transpose(minus_mean)
-print(minus_mean_t)
-print("transpose array: ", minus_mean_t)
-print("transpose array.shape: ", minus_mean_t.shape)
+mean_face_long = mean_face_long.reshape(5600,1)
 
+normalized_faces_long = original_faces_long - mean_face_long
 
-covariance_matrix_1 = np.matmul(minus_mean_t, minus_mean)/4899
-covariance_matrix_2 = np.cov(minus_mean.T)
+normalized_faces_long_t = np.transpose(normalized_faces_long)
 
-print("11111 \n", covariance_matrix_1)
-print(covariance_matrix_1.shape)
-print("22222 \n", covariance_matrix_2)
-print(covariance_matrix_2.shape)
+covariance_matrix_1 = np.matmul(normalized_faces_long_t, normalized_faces_long)/5599
+covariance_matrix_2 = np.cov(normalized_faces_long_t)
 
-eigen_values, eigen_vectors = np.linalg.eig(covariance_matrix_2)
+eigen_values_pca, eigen_vectors_pca = np.linalg.eig(covariance_matrix_2)
 
-# print(type(eigen_values))
-# print(eigen_values.shape)
-# eigen_values_in_order = (-np.sort(-eigen_values))
-# print(eigen_vectors)
-# eigen_vectors_in_order = (-np.sort(-eigen_vectors))
-# print("sort:", eigen_vectors_in_order)
+eigenvectors_of_original_faces = np.matmul(normalized_faces_long, eigen_vectors_pca)
 
-# index = np.argsort(eigen_values.real)[::-1]
-# eigen_values_in_order = eigen_values.real[index]
-# eigen_vectors_in_order = eigen_vectors.real[:, index]
-
-print("eigen_vectors: ", eigen_vectors)
-print("eigen_vectors.shape: ", eigen_vectors.shape)
-# print("eigen_vectors_in_order: ", eigen_vectors_in_order)
-print("eigen_values: ", eigen_values)
-# print("eigen_values_in_order: ",eigen_values_in_order)
-
-
-
-# STEP6: Convert lower dimensionality K Eigen Vectors to Original Dimensionality
-eigen_faces = np.matmul(eigen_vectors, minus_mean_t)
-print(eigen_faces.shape)
-
-eigen_faces_t = eigen_faces.T
-print("eigen_faces_t: ", eigen_faces_t)
-print("eigen_faces_t.shape: ", eigen_faces_t.shape)
+eigenvectors_of_original_faces_T = eigenvectors_of_original_faces.T
 
 a = 0
 for i in range(410):
-    example = eigen_faces_t[:,a]
-    example = example.reshape(70,70)
+    example = eigenvectors_of_original_faces[:,a]
+    example = example.reshape(80,70)
     test_im_list = im.fromarray(example.astype(np.uint8), "L")
     test_im_list.save("/Users/jinchoi725/Desktop/eigenfaces/eigenface_{a}.jpg".format(a = a))
     a += 1
@@ -199,98 +92,41 @@ def load_grayscaled_images_from_folder(folder):
     for filename in os.listdir(folder):
         img = cv2.imread(os.path.join(folder,filename))
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        resize = cv2.resize(gray, (70,70))
+        resize = cv2.resize(gray, (70,80))
         images.append(resize)
     return images
 
 
-input = load_grayscaled_images_from_folder("/Users/jinchoi725/Desktop/input/")
+input_image = load_grayscaled_images_from_folder("/Users/jinchoi725/Desktop/input/")
 
-input = np.array(input)
-# print(input)
-print(input.shape)
+input_image = np.array(input_image)
 
-input = input.reshape(1*70,70)
+input_image = input_image.reshape(1*80,70)
 
-print(input.shape)
+input_image = input_image.reshape(5600, 1)
 
-input = input.reshape(4900, 1)
+input_image_normalized_long = input_image - mean_face_long
 
-input_norm = input - mean_face_array
-
-# input_norm = input_norm.reshape(70,70)
-# test_im_list = im.fromarray(input_norm.astype(np.uint8), "L")
-# test_im_list.save("/Users/jinchoi725/Desktop/example.jpg")
-
-weights = np.matmul(eigen_faces, input_norm)
-print(weights)
-print(weights.shape)
-
-# weights = eigen_faces_t
-
-# test_im_list = im.fromarray(example.astype(np.uint8), "L")
-# test_im_list.save("/Users/jinchoi725/Desktop/example.jpg")
-
-# test_im_list = im.fromarray(minus_mean.astype(np.uint8), "L")
-# test_im_list.save("/Users/jinchoi725/Desktop/minus_mean.jpg")
+weight_vectors_of_original_images = np.dot(eigenvectors_of_original_faces.T, normalized_faces_long)
 
 
-# mean_face_array = mean_face_array/410
-# print(mean_face_array)
-# # print(mean_face_array.shape)
-# mean_face_square = mean_face_array.reshape((70,70))
-# print("mean_face_square: ", mean_face_square)
-# print("mean_face_square.shape: ", mean_face_square.shape)
-# # #
-# test_im_list = im.fromarray(mean_face_square.astype(np.uint8), "L")
-# test_im_list.save("/Users/jinchoi725/Desktop/mean face square.jpg")
-#
-#
-#
-# def average(input_array):
-#     b = 0
-#     e = []
-#     for i in range(4900):
-#         a = 0
-#         c = []
-#         for i in input_array:
-#             value = input_array[a, b, 0]
-#             c.append(value)
-#             a += 1
-#         d = int(sum(c)/len(input_array))
-#         e.append(d)
-#         b += 1
-#     return np.array(e)
-#
-# print("평균값 배열 ----> \n", average(b))
-# print(average(b).shape)
-#
-# mean_vector = average(b).reshape((4900,1))
-# print("평균값 배열 (4900,1) ----> \n", mean_vector)
-# print(mean_vector.shape)
-#
-# mean_face = mean_vector.reshape(70,70)
-# print("평균값 배열 (70,70) ----> \n", mean_face)
-# print(mean_face.shape)
-#
-# mean_face_list = list(mean_face)
-# print("mean face list:", mean_face_list)
-#
-# test_im_list = im.fromarray(mean_face_list[0], "L")
-# test_im_list.save("/Users/jinchoi725/Desktop/test_im_list.jpg")
-#
-#
-#
-#
-#
-#
+# a=0
+# weight_vectors_of_input_image = np.zeros(shape=(1,1))
+# for i in range(410):
+#     weight = np.matmul(eigenvectors_of_original_faces[:, a:a+1].T, input_image_normalized_long)
+#     weight_vectors_of_input_image = np.concatenate((weight_vectors_of_input_image, weight), axis=1)
+#     a += 1
+# weight_vectors_of_input_image = np.delete(weight_vectors_of_input_image,np.s_[0:1], axis=1)
+# weight_vectors_of_input_image = weight_vectors_of_input_image.T
+
+weight_vectors_of_input_image = np.dot(eigenvectors_of_original_faces.T, input_image_normalized_long)
 
 
+verify = weight_vectors_of_original_images.T - weight_vectors_of_input_image
+column_sum = verify.sum(axis=1)
+print(column_sum)
+print(len(column_sum))
 
 
-
-
-
-
-
+# https://github.com/jayshah19949596/Computer-Vision-Course-Assignments/blob/master/EigenFaces/EigenFaces.ipynb
 

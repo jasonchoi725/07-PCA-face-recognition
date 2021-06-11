@@ -129,4 +129,6 @@ print(len(column_sum))
 
 
 # https://github.com/jayshah19949596/Computer-Vision-Course-Assignments/blob/master/EigenFaces/EigenFaces.ipynb
-
+# https://www.youtube.com/watch?v=SaEmG4wcFfg&t=974s&ab_channel=FrancescoPiscaniFrancescoPiscani
+# https://www.youtube.com/watch?v=lnS9oCMO9NM&ab_channel=RoseRustowiczRoseRustowicz
+# https://github.com/KangDoHyeong/PCA_Basic/blob/master/jupyter_notebook/0602%20%EC%8B%A4%EC%8A%B5%20%EA%B5%90%EC%95%88.ipynb
